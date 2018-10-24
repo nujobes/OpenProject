@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/css/**" location="/resources/css/"></resources>
+	<resources mapping="/images/**" location="/resources/images/"></resources>
+	<resources mapping="/common/**" location="/resources/common/"></resources>
+	<resources mapping="/uploadfile/**" location="/uploadfile/"></resources>
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<context:component-scan
+		base-package="com.nujobes.OpenProject" />
+
+	<!-- MEMBER DAO 등록 -->
+	<beans:bean id="memberVO"
+		class="com.nujobes.OpenProject.Member.Model.MemberVO"></beans:bean>
+	<!-- MEMBER VO 등록 -->
+	<beans:bean id="memberDAO"
+		class="com.nujobes.OpenProject.Member.Dao.MemberDAO"></beans:bean>
+
+	<!-- Service 등록 -->
+	<beans:bean id="memberLoginService"
+		class="com.nujobes.OpenProject.Member.Service.MemberLoginService"></beans:bean>
+
+	<beans:bean id="memberRegService"
+		class="com.nujobes.OpenProject.Member.Service.MemberRegService"></beans:bean>
+
+	<beans:bean id="memberEditService"
+		class="com.nujobes.OpenProject.Member.Service.MemberEditService"></beans:bean>
+
+	<beans:bean id="memberDeleteService"
+		class="com.nujobes.OpenProject.Member.Service.MemberDeleteService"></beans:bean>
+
+	<beans:bean id="memberListService"
+		class="com.nujobes.OpenProject.Member.Service.MemberListService"></beans:bean>
+
+	<!-- 방명록을 위한 bean 등록 -->
+	<beans:bean id="messageDao"
+		class="com.nujobes.OpenProject.Guest.Dao.MessageDao">
+	</beans:bean>
+	<beans:bean id="GetMessageListService"
+		class="com.nujobes.OpenProject.Guest.Service.GetMessageListService"></beans:bean>
+	<beans:bean id="WriteMessageService"
+		class="com.nujobes.OpenProject.Guest.Service.WriteMessageService"></beans:bean>
+	<beans:bean id="DeleteMessageService"
+		class="com.nujobes.OpenProject.Guest.Service.DeleteMessageService"></beans:bean>
+	<beans:bean id="GetMessageService"
+		class="com.nujobes.OpenProject.Guest.Service.GetMessageService"></beans:bean>
+
+
+	<!-- 1024 spring - mybaits 연동 설정 -->
+	<!-- <beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> 
+		<beans:property name="dataSource" ref="dataSource" /> <beans:property name="mapperLocations" 
+		value="classpath:com/nujobes/OpenProject/mapper/mybatis/*.xml" /> </beans:bean> 
+		1024 Sql SessionTemplate 빈 등록 <beans:bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate"> 
+		<beans:constructor-arg index="0" ref="sqlSessionFactory"></beans:constructor-arg> 
+		</beans:bean> 1024 mybatis memberdao 등록 <beans:bean id="mybatisMemberDao" 
+		class="com.nujobes.OpenProject.Member.Dao.MybatisMemberDAO" /> -->
+
+	<!-- 파일업로드 처리를 위한 multipartResolver bean 등록 -->
+	<beans:bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="defaultEncoding">
+			<beans:value>utf-8</beans:value>
+		</beans:property>
+	</beans:bean>
+
+	<!-- dataSource 빈 등록 -->
+	<beans:bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+
+		<beans:property name="driverClass"
+			value="oracle.jdbc.driver.OracleDriver" />
+
+		<beans:property name="jdbcUrl"
+			value="jdbc:oracle:thin:@localhost:1521:orcl" />
+
+		<beans:property name="user" value="nujobes" />
+		<beans:property name="password" value="nujobes" />
+	</beans:bean>
+
+	<!-- jdbcTemplate 빈 등록 -->
+	<beans:bean id="jdbcTemplate"
+		class="org.springframework.jdbc.core.JdbcTemplate"
+		p:dataSource-ref="dataSource" />
+	<interceptors>
+		<interceptor>
+			<mapping path="/member/**" />
+			<exclude-mapping path="/member/login"></exclude-mapping>
+			<exclude-mapping path="/member/logout"></exclude-mapping>
+			<exclude-mapping path="/member/memberReg"></exclude-mapping>
+			<beans:bean
+				class="com.nujobes.OpenProject.Intercepter.AuthCheckInterceptor" />
+		</interceptor>
+		<interceptor>
+			<mapping path="/guestbook/**" />
+			<beans:bean
+				class="com.nujobes.OpenProject.Intercepter.AuthCheckInterceptor" />
+		</interceptor>
+	</interceptors>
+</beans:beans> 
